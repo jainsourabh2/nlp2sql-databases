@@ -16,7 +16,7 @@ export VERSION=0.14.0
 curl -O https://storage.googleapis.com/genai-toolbox/v$VERSION/linux/amd64/toolbox
 chmod +x toolbox
 
-7. Relace the value appropriately in .env file and toolbox-alloydb.yaml
+7. Copy the .env-example file and rename it to .env . Relace the value appropriately in .env file and toolbox-alloydb.yaml
 
 8. Start a terminal session and run start the toolbox server
 ./toolbox --tools-file "toolbox-allloydb.yaml"
