@@ -10,8 +10,8 @@
 
 5. cd database-chat-bot
 
-6. 
-# see releases page for other versions (https://github.com/googleapis/genai-toolbox?tab=readme-ov-file#installing-the-server)
+6. See releases page for other versions (https://github.com/googleapis/genai-toolbox?tab=readme-ov-file#installing-the-server)
+
 export VERSION=0.14.0
 curl -O https://storage.googleapis.com/genai-toolbox/v$VERSION/linux/amd64/toolbox
 chmod +x toolbox

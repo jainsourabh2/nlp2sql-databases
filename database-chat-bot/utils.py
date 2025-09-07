@@ -45,26 +45,26 @@ def get_env_var(var_name):
     raise ValueError(f'Missing environment variable: {var_name}')
 
 
-def get_image_bytes(filepath):
-  """Reads an image file and returns its bytes.
+# def get_image_bytes(filepath):
+#   """Reads an image file and returns its bytes.
 
-  Args:
-    filepath: The path to the image file.
+#   Args:
+#     filepath: The path to the image file.
 
-  Returns:
-    The bytes of the image file, or None if the file does not exist or cannot be
-    read.
-  """
-  try:
-    with open(filepath, 'rb') as f:  # "rb" mode for reading in binary
-      image_bytes = f.read()
-    return image_bytes
-  except FileNotFoundError:
-    print(f'Error: File not found at {filepath}')
-    return None
-  except Exception as e:
-    print(f'Error reading file: {e}')
-    return None
+#   Returns:
+#     The bytes of the image file, or None if the file does not exist or cannot be
+#     read.
+#   """
+#   try:
+#     with open(filepath, 'rb') as f:  # "rb" mode for reading in binary
+#       image_bytes = f.read()
+#     return image_bytes
+#   except FileNotFoundError:
+#     print(f'Error: File not found at {filepath}')
+#     return None
+#   except Exception as e:
+#     print(f'Error reading file: {e}')
+#     return None
 
 
 def extract_json_from_model_output(model_output):
