@@ -24,7 +24,8 @@ from google.genai import Client
 from toolbox_core import ToolboxSyncClient
 
 ALLOYDB_TOOLSET = os.getenv("ALLOYDB_TOOLSET", "alloydb-postgres-database-tools")
-ALLOYDB_SERVER_URL = os.getenv("ALLOYDB_SERVER_URL", "http://127.0.0.1:5000")
+#ALLOYDB_SERVER_URL = os.getenv("ALLOYDB_SERVER_URL", "http://127.0.0.1:5000")
+ALLOYDB_SERVER_URL = os.getenv("ALLOYDB_SERVER_URL", "https://toolbox-173195860927.us-central1.run.app")
 
 MAX_NUM_ROWS = 80
 
@@ -61,10 +62,9 @@ def get_database_settings():
 
 def get_schema():
     get_schema_tool = get_toolbox_client().load_tool("list_tables")
-    print("*************")
     print(get_schema_tool)
-    print("@@@@@@@@@@@@@@")
-    schema = get_schema_tool(get_env_var("ALLOYDB_SCHEMA_NAME"))
+    #schema = get_schema_tool(get_env_var("ALLOYDB_SCHEMA_NAME"))
+    schema = get_schema_tool('')
     return schema
 
 def update_database_settings():
@@ -150,7 +150,9 @@ sample rows):
 
     #schema = tool_context.state["database_settings"]["alloydb"]["schema"]
     schema = tool_context.state["database_settings"]["schema"]
-
+    print("Schema definition")
+    print(schema)
+    print("Schema end")
     prompt = prompt_template.format(
         MAX_NUM_ROWS=MAX_NUM_ROWS, SCHEMA=schema, QUESTION=question
     )
@@ -267,7 +269,7 @@ def run_alloydb_query(
             )
 
     except (
-        # Catch generic BQ exceptions  # pylint: disable=broad-exception-caught
+        # Catch generic exceptions  # pylint: disable=broad-exception-caught
         Exception
     ) as e:
         final_result["error_message"] = f"Query error: {e}"
