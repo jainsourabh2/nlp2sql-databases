@@ -24,8 +24,7 @@ from google.genai import Client
 from toolbox_core import ToolboxSyncClient
 
 ALLOYDB_TOOLSET = os.getenv("ALLOYDB_TOOLSET", "alloydb-postgres-database-tools")
-#ALLOYDB_SERVER_URL = os.getenv("ALLOYDB_SERVER_URL", "http://127.0.0.1:5000")
-ALLOYDB_SERVER_URL = os.getenv("ALLOYDB_SERVER_URL", "https://toolbox-173195860927.us-central1.run.app")
+ALLOYDB_SERVER_URL = os.getenv("ALLOYDB_SERVER_URL", "http://127.0.0.1:5000")
 
 MAX_NUM_ROWS = 80
 
