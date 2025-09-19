@@ -1,0 +1,147 @@
+sources:
+    mysql-source:
+        kind: "cloud-sql-mysql"
+        project: ${MYSQL_PROJECT}
+        region: ${MYSQL_REGION}
+        instance: ${MYSQL_INSTANCE}
+        database: ${MYSQL_DATABASE}
+        user: ${MYSQL_USER}
+        password: ${MYSQL_PASSWORD}
+tools:
+    execute_sql:
+        kind: mysql-execute-sql
+        source: mysql-source
+        description: Use this tool to execute sql.
+
+    list_tables:
+        kind: mysql-sql
+        source: mysql-source
+        description: "Lists detailed schema information (object type, columns, constraints, indexes, triggers, owner, comment) as JSON for user-created tables (ordinary or partitioned). Filters by a comma-separated list of names. If names are omitted, lists all tables in user schemas."
+        statement: |
+            WITH params AS (
+              SELECT '' AS object_names   -- comma-separated table names or '' for all
+            )
+            SELECT
+              t.table_schema,
+              t.table_name AS object_name,
+              JSON_OBJECT(
+                'schema_name', t.table_schema,
+                'object_name', t.table_name,
+                'object_type', 'TABLE',
+                'owner', t.table_schema,   -- MySQL doesn’t track owner, use schema
+                'comment', t.table_comment,
+                'columns', COALESCE((
+                  SELECT JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                      'column_name', c.column_name,
+                      'data_type', c.column_type,
+                      'ordinal_position', c.ordinal_position,
+                      'is_not_nullable', (c.is_nullable = 'NO'),
+                      'column_default', c.column_default,
+                      'column_comment', c.column_comment
+                    )
+                  )
+                  FROM (
+                    SELECT *
+                    FROM information_schema.columns c
+                    WHERE c.table_schema = t.table_schema
+                      AND c.table_name = t.table_name
+                    ORDER BY c.ordinal_position
+                  ) AS c
+                ), JSON_ARRAY()),
+                'constraints', COALESCE((
+                  SELECT JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                      'constraint_name', tc.constraint_name,
+                      'constraint_type', tc.constraint_type,
+                      'constraint_definition', NULL,
+                      'constraint_columns', (
+                        SELECT JSON_ARRAYAGG(x.column_name)
+                        FROM (
+                          SELECT kcu.column_name
+                          FROM information_schema.key_column_usage kcu
+                          WHERE kcu.constraint_schema = tc.constraint_schema
+                            AND kcu.constraint_name = tc.constraint_name
+                            AND kcu.table_name = tc.table_name
+                          ORDER BY kcu.ordinal_position
+                        ) AS x
+                      ),
+                      'foreign_key_referenced_table', rc.unique_constraint_name,
+                      'foreign_key_referenced_columns', (
+                        SELECT JSON_ARRAYAGG(y.column_name)
+                        FROM (
+                          SELECT kcu2.column_name
+                          FROM information_schema.key_column_usage kcu2
+                          WHERE kcu2.constraint_schema = rc.unique_constraint_schema
+                            AND kcu2.constraint_name = rc.unique_constraint_name
+                          ORDER BY kcu2.ordinal_position
+                        ) AS y
+                      )
+                    )
+                  )
+                  FROM information_schema.table_constraints tc
+                  LEFT JOIN information_schema.referential_constraints rc
+                    ON tc.constraint_schema = rc.constraint_schema
+                  AND tc.constraint_name = rc.constraint_name
+                  WHERE tc.table_schema = t.table_schema
+                    AND tc.table_name = t.table_name
+                ), JSON_ARRAY()),
+                'indexes', COALESCE((
+                  SELECT JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                      'index_name', si.index_name,
+                      'index_definition', NULL,
+                      'is_unique', si.non_unique = 0,
+                      'is_primary', (si.index_name = 'PRIMARY'),
+                      'index_method', si.index_type,
+                      'index_columns', (
+                        SELECT JSON_ARRAYAGG(z.column_name)
+                        FROM (
+                          SELECT sic.column_name
+                          FROM information_schema.statistics sic
+                          WHERE sic.table_schema = t.table_schema
+                            AND sic.table_name = t.table_name
+                            AND sic.index_name = si.index_name
+                          ORDER BY sic.seq_in_index
+                        ) AS z
+                      )
+                    )
+                  )
+                    FROM (
+                    SELECT DISTINCT index_name, non_unique, index_type
+                    FROM information_schema.statistics s2
+                    WHERE s2.table_schema = t.table_schema
+                      AND s2.table_name = t.table_name
+                  ) AS si
+                ), JSON_ARRAY()),
+                'triggers', COALESCE((
+                  SELECT JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                      'trigger_name', tr.trigger_name,
+                      'trigger_definition', tr.action_statement,
+                      'trigger_enabled_state', tr.action_timing
+                    )
+                  )
+                  FROM information_schema.triggers tr
+                  WHERE tr.trigger_schema = t.table_schema
+                    AND tr.event_object_table = t.table_name
+                ), JSON_ARRAY())
+              ) AS object_details
+            FROM information_schema.tables t
+            JOIN params p ON 1=1
+            WHERE t.table_type = 'BASE TABLE'
+              AND t.table_schema NOT IN ('mysql','performance_schema','information_schema','sys')
+              AND (
+                p.object_names = ?
+                OR FIND_IN_SET(t.table_name, p.object_names) > 0
+              )
+            ORDER BY t.table_schema, t.table_name;
+        parameters:
+            - name: table_names
+              type: string
+              description: "Optional: A comma-separated list of table names. If empty, details for all tables in user-accessible schemas will be listed."
+
+toolsets:
+    mysql-database-tools:
+        - execute_sql
+        - list_tables

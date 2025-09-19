@@ -1,0 +1,10 @@
+export MYSQL_PROJECT="tdbargolis1"
+export MYSQL_REGION="us-central1"
+export MYSQL_INSTANCE="primary-instance"
+export MYSQL_DATABASE="mysqlgenai"
+export MYSQL_USER="genaiuser"
+export MYSQL_PASSWORD="passwd123"
+export MYSQL_SCHEMA_NAME="mysqlgenai"
+export MYSQL_PROJECT_ID="tdbargolis1"
+export BASELINE_NL2SQL_MODEL="gemini-2.5-flash"
+
