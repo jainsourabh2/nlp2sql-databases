@@ -1,13 +1,13 @@
 sources:
     alloydb-pg-source:
         kind: "alloydb-postgres"
-        project: ${ALLOYDB_POSTGRES_PROJECT}
-        region: ${ALLOYDB_POSTGRES_REGION}
+        project: ${DATABASE_PROJECT}
+        region: ${DATABASE_REGION}
         cluster: ${ALLOYDB_POSTGRES_CLUSTER}
-        instance: ${ALLOYDB_POSTGRES_INSTANCE}
-        database: ${ALLOYDB_POSTGRES_DATABASE}
-        user: ${ALLOYDB_POSTGRES_USER}
-        password: ${ALLOYDB_POSTGRES_PASSWORD}
+        instance: ${DATABASE_INSTANCE}
+        database: ${DATABASE}
+        user: ${DATABASE_USER}
+        password: ${DATABASE_PASSWORD}
 tools:
     execute_sql:
         kind: postgres-execute-sql

@@ -1,12 +1,12 @@
 sources:
     mysql-source:
         kind: "cloud-sql-mysql"
-        project: ${MYSQL_PROJECT}
-        region: ${MYSQL_REGION}
-        instance: ${MYSQL_INSTANCE}
-        database: ${MYSQL_DATABASE}
-        user: ${MYSQL_USER}
-        password: ${MYSQL_PASSWORD}
+        project: ${DATABASE_PROJECT}
+        region: ${DATABASE_REGION}
+        instance: ${DATABASE_INSTANCE}
+        database: ${DATABASE}
+        user: ${DATABASE_USER}
+        password: ${DATABASE_PASSWORD}
 tools:
     execute_sql:
         kind: mysql-execute-sql

@@ -23,8 +23,8 @@ from google.adk.tools import ToolContext
 from google.genai import Client
 from toolbox_core import ToolboxSyncClient
 
-ALLOYDB_TOOLSET = os.getenv("ALLOYDB_TOOLSET", "alloydb-postgres-database-tools")
-ALLOYDB_SERVER_URL = os.getenv("ALLOYDB_SERVER_URL", "http://127.0.0.1:5000")
+TOOLSET = os.getenv("TOOLSET", "")
+SERVER_URL = os.getenv("SERVER_URL", "http://127.0.0.1:5000")
 
 MAX_NUM_ROWS = 80
 
@@ -42,14 +42,14 @@ def get_toolbox_client():
     """Get MCP Toolbox client."""
     global toolbox_client
     if toolbox_client is None:
-        toolbox_client = ToolboxSyncClient(ALLOYDB_SERVER_URL)
+        toolbox_client = ToolboxSyncClient(SERVER_URL)
     return toolbox_client
 
 def get_toolbox_toolset():
     """Get MCP Toolbox toolset."""
     global toolbox_toolset
     if toolbox_toolset is None:
-        toolbox_toolset = get_toolbox_client().load_toolset(ALLOYDB_TOOLSET)
+        toolbox_toolset = get_toolbox_client().load_toolset(TOOLSET)
     return toolbox_toolset
 
 def get_database_settings():
@@ -62,7 +62,6 @@ def get_database_settings():
 def get_schema():
     get_schema_tool = get_toolbox_client().load_tool("list_tables")
     print(get_schema_tool)
-    #schema = get_schema_tool(get_env_var("ALLOYDB_SCHEMA_NAME"))
     schema = get_schema_tool('')
     return schema
 
@@ -73,9 +72,9 @@ def update_database_settings():
     schema = get_schema()
 
     database_settings = {
-        "project_id": get_env_var("ALLOYDB_PROJECT_ID"),
-        "database": get_env_var("ALLOYDB_DATABASE"),
-        "schema_name": get_env_var("ALLOYDB_SCHEMA_NAME"),
+        "project_id": get_env_var("DATABASE_PROJECT"),
+        "database": get_env_var("DATABASE"),
+        "schema_name": get_env_var("DATABASE_SCHEMA_NAME"),
         "schema": schema,
     }
     return database_settings
@@ -149,6 +148,93 @@ sample rows):
 
     #schema = tool_context.state["database_settings"]["alloydb"]["schema"]
     schema = tool_context.state["database_settings"]["schema"]
+
+    prompt = prompt_template.format(
+        MAX_NUM_ROWS=MAX_NUM_ROWS, SCHEMA=schema, QUESTION=question
+    )
+
+    response = llm_client.models.generate_content(
+        model=os.getenv("BASELINE_NL2SQL_MODEL", ""),
+        contents=prompt,
+        config={"temperature": 0.1},
+    )
+
+    sql = response.text or ""
+    if sql:
+        sql = sql.replace("```sql", "").replace("```", "").strip()
+
+    print("\n sql:", sql)
+
+    tool_context.state["sql_query"] = sql
+
+    return sql
+
+def mysql_nl2sql(
+    question: str,
+    tool_context: ToolContext,
+) -> str:
+    """Generates an initial SQL query from a natural language question.
+
+    Args:
+        question (str): Natural language question.
+        tool_context (ToolContext): The tool context to use for generating the
+          SQL query.
+
+    Returns:
+        str: An SQL statement to answer this question.
+    """
+
+    prompt_template = """
+You are a MYSQL database expert tasked with translating a user's
+questions about MySQL tables into a valid SQL query in the
+MySQL dialect. Your task is to write a MySQL query that answers the
+following question while using the provided context.
+
+**Guidelines:**
+
+- **Table Referencing:** Table names are case sensitive. Alias should be used. e.g. SELECT table_name AS object_name FROM 
+  information_schema.tables WHERE table_schema = 'schema_name'
+- **Joins:** Join as few tables as possible. When joining tables, ensure all
+  join columns are the same data type. Analyze the database and the table schema
+  provided to understand the relationships between columns and tables.
+- **Aggregations:**  Use all non-aggregated columns from the "SELECT" statement
+  in the `GROUP BY` clause.
+- **SQL Syntax:** Return syntactically and semantically correct SQL for
+  MySQL with proper relation mapping (i.e., project_id, owner,
+  table, and column relation). Use SQL `AS` statement to assign a new name
+  temporarily to a table column or even a table wherever needed. Always enclose
+  subqueries and union queries in parentheses.
+- **Column Usage:** Use *ONLY* the column names (column_name) mentioned in the
+  Table Schema. Do *NOT* use any other column names. Associate `column_name`
+  mentioned in the Table Schema only to the `table_name` specified under Table
+  Schema.
+- **FILTERS:** You should write the query effectively  to reduce and minimize the
+  total rows to be returned. For example, you can use filters (like `WHERE`,
+  `HAVING`, etc. (like 'COUNT', 'SUM', etc.) in the SQL query.
+- **LIMIT ROWS:**  Always add a LIMIT clause to the query to make sure the
+  maximum number of rows returned is less than or equal to {MAX_NUM_ROWS}.
+
+**Schema:**
+
+The database structure is defined by the following table schemas (possibly with
+sample rows):
+
+```
+{SCHEMA}
+```
+
+**Natural language question:**
+
+```
+{QUESTION}
+```
+
+**Think Step-by-Step:** Carefully consider the schema, question, guidelines, and
+  best practices outlined above to generate the correct MySQL statement.
+
+   """
+
+    schema = tool_context.state["database_settings"]["schema"]
     print("Schema definition")
     print(schema)
     print("Schema end")
@@ -173,12 +259,12 @@ sample rows):
     return sql
 
 
-def run_alloydb_query(
+def run_query(
     sql_string: str,
     tool_context: ToolContext,
 ) -> dict:
     """
-    Runs an AlloyDB SQL query.
+    Runs the database SQL query.
 
     This function validates the provided SQL string, then runs it against
     AlloyDB and returns the results.
