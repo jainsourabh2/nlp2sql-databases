@@ -1,0 +1,347 @@
+--DDLs
+
+CREATE TABLE customer_segments (
+   segment_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for customer segment',
+   segment_name VARCHAR(50) COMMENT 'Name of the customer segment (Retail, Corporate)',
+   description VARCHAR(200) COMMENT 'Description of the segment'
+);
+
+CREATE TABLE customers (
+   customer_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for each customer',
+   first_name VARCHAR(50) NOT NULL COMMENT 'Customer first name',
+   last_name VARCHAR(50) NOT NULL COMMENT 'Customer last name',
+   date_of_birth DATE COMMENT 'Date of birth of the customer',
+   email VARCHAR(100) COMMENT 'Email address of the customer',
+   phone VARCHAR(20) COMMENT 'Contact phone number of the customer',
+   segment_id INT COMMENT 'Foreign key referencing customer_segments',
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp when the customer record was created',
+   FOREIGN KEY (segment_id) REFERENCES customer_segments(segment_id)
+);
+
+CREATE TABLE currencies (
+   currency_code CHAR(3) PRIMARY KEY COMMENT 'ISO 4217 currency code (e.g., INR, USD)',
+   currency_name VARCHAR(50) COMMENT 'Full name of the currency',
+   symbol VARCHAR(10) COMMENT 'Currency symbol'
+);
+
+CREATE TABLE account_types (
+   account_type_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for account type',
+   type_name VARCHAR(50) COMMENT 'Name of account type (Savings, Current)',
+   description VARCHAR(200) COMMENT 'Description of the account type'
+);
+
+CREATE TABLE accounts (
+   account_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for each account',
+   customer_id INT COMMENT 'Foreign key referencing customers table',
+   account_type_id INT COMMENT 'Foreign key referencing account_types table',
+   balance DECIMAL(18,2) DEFAULT 0 COMMENT 'Current balance of the account',
+   currency_code CHAR(3) NOT NULL COMMENT 'ISO currency code of the account',
+   opened_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp when the account was opened',
+   FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+   FOREIGN KEY (account_type_id) REFERENCES account_types(account_type_id),
+   FOREIGN KEY (currency_code) REFERENCES currencies(currency_code)
+);
+
+
+CREATE TABLE countries (
+   country_code CHAR(2) PRIMARY KEY COMMENT 'ISO 3166-1 alpha-2 country code',
+   country_name VARCHAR(100) COMMENT 'Full country name'
+);
+
+CREATE TABLE regions (
+   region_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for region',
+   region_name VARCHAR(50) COMMENT 'Name of the region (e.g., West India)',
+   country_code CHAR(2) COMMENT 'Foreign key referencing countries table',
+   FOREIGN KEY (country_code) REFERENCES countries(country_code)
+);
+
+
+CREATE TABLE branches (
+   branch_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for each branch',
+   branch_name VARCHAR(100) NOT NULL COMMENT 'Name of the bank branch',
+   region_id INT COMMENT 'Foreign key referencing regions table',
+   manager_id INT COMMENT 'Employee ID of branch manager',
+   address VARCHAR(200) COMMENT 'Physical address of the branch',
+   FOREIGN KEY (region_id) REFERENCES regions(region_id)
+);
+
+
+CREATE TABLE fees (
+   fee_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for fee type',
+   fee_name VARCHAR(50) COMMENT 'Name of the fee (Processing Fee, Annual Fee)',
+   amount DECIMAL(10,2) COMMENT 'Fee amount in base currency'
+);
+
+
+CREATE TABLE products (
+   product_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for each financial product',
+   product_name VARCHAR(100) COMMENT 'Name of the financial product',
+   product_type VARCHAR(50) COMMENT 'Category of product (Deposit, Loan, Insurance)',
+   interest_rate DECIMAL(5,2) COMMENT 'Interest rate associated with product',
+   fee_id INT COMMENT 'Foreign key referencing fees table',
+   FOREIGN KEY (fee_id) REFERENCES fees(fee_id)
+);
+
+
+CREATE TABLE transaction_channels (
+   channel_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for transaction channel',
+   channel_name VARCHAR(50) COMMENT 'Name of transaction channel (ATM, Mobile, POS)'
+);
+
+
+CREATE TABLE loan_types (
+   loan_type_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for loan type',
+   loan_type_name VARCHAR(50) COMMENT 'Name of the loan type (Home Loan, Car Loan)',
+   max_tenure_months INT COMMENT 'Maximum tenure allowed in months',
+   base_interest_rate DECIMAL(5,2) COMMENT 'Base interest rate for this loan type'
+);
+
+
+CREATE TABLE cards (
+   card_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for each card',
+   account_id INT COMMENT 'Foreign key referencing accounts table',
+   card_number VARCHAR(16) UNIQUE COMMENT 'Unique card number',
+   card_type VARCHAR(50) COMMENT 'Type of card (Credit, Debit)',
+   expiry_date DATE COMMENT 'Expiration date of the card',
+   FOREIGN KEY (account_id) REFERENCES accounts(account_id)
+);
+
+
+CREATE TABLE merchants (
+   merchant_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for each merchant',
+   merchant_name VARCHAR(100) COMMENT 'Name of the merchant',
+   category VARCHAR(50) COMMENT 'Business category of the merchant (e.g., Retail, E-commerce)',
+   country_code CHAR(2) COMMENT 'Foreign key referencing countries table',
+   FOREIGN KEY (country_code) REFERENCES countries(country_code)
+);
+
+
+CREATE TABLE risk_categories (
+   risk_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for risk category',
+   risk_level VARCHAR(50) COMMENT 'Risk level (Low, Medium, High)',
+   description VARCHAR(200) COMMENT 'Description of the risk category'
+);
+
+
+CREATE TABLE devices (
+   device_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for device',
+   device_type VARCHAR(50) COMMENT 'Type of device (Mobile, Laptop, ATM)',
+   os VARCHAR(50) COMMENT 'Operating system running on the device'
+);
+
+
+CREATE TABLE employees (
+   employee_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for each employee',
+   first_name VARCHAR(50) COMMENT 'First name of the employee',
+   last_name VARCHAR(50) COMMENT 'Last name of the employee',
+   role VARCHAR(50) COMMENT 'Job role or designation of the employee',
+   branch_id INT COMMENT 'Branch where employee works',
+   hire_date DATE COMMENT 'Date the employee was hired',
+   FOREIGN KEY (branch_id) REFERENCES branches(branch_id)
+);
+
+
+CREATE TABLE payment_methods (
+   method_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for each payment method',
+   method_name VARCHAR(50) COMMENT 'Name of payment method (Card, UPI, NetBanking)'
+);
+
+
+CREATE TABLE transaction_statuses (
+   status_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for transaction status',
+   status_name VARCHAR(50) COMMENT 'Name of the status (Pending, Completed, Failed)'
+);
+
+
+CREATE TABLE transactions (
+   transaction_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique identifier for each transaction',
+   account_id INT COMMENT 'Foreign key referencing accounts table',
+   branch_id INT COMMENT 'Foreign key referencing branches table',
+   product_id INT COMMENT 'Foreign key referencing products table',
+   merchant_id INT COMMENT 'Foreign key referencing merchants table',
+   method_id INT COMMENT 'Foreign key referencing payment_methods table',
+   channel_id INT COMMENT 'Foreign key referencing transaction_channels table',
+   employee_id INT COMMENT 'Foreign key referencing employees table',
+   device_id INT COMMENT 'Foreign key referencing devices table',
+   status_id INT COMMENT 'Foreign key referencing transaction_statuses table',
+   amount DECIMAL(18,2) NOT NULL COMMENT 'Transaction amount',
+   currency_code CHAR(3) COMMENT 'Currency of the transaction',
+   transaction_type VARCHAR(50) COMMENT 'Type of transaction (Debit, Credit, Transfer)',
+   transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Date and time of transaction',
+   description VARCHAR(200) COMMENT 'Additional transaction details',
+   FOREIGN KEY (account_id) REFERENCES accounts(account_id),
+   FOREIGN KEY (branch_id) REFERENCES branches(branch_id),
+   FOREIGN KEY (product_id) REFERENCES products(product_id),
+   FOREIGN KEY (merchant_id) REFERENCES merchants(merchant_id),
+   FOREIGN KEY (method_id) REFERENCES payment_methods(method_id),
+   FOREIGN KEY (channel_id) REFERENCES transaction_channels(channel_id),
+   FOREIGN KEY (employee_id) REFERENCES employees(employee_id),
+   FOREIGN KEY (device_id) REFERENCES devices(device_id),
+   FOREIGN KEY (status_id) REFERENCES transaction_statuses(status_id),
+   FOREIGN KEY (currency_code) REFERENCES currencies(currency_code)
+);
+
+
+--DMLs
+
+-- ======================
+-- Countries
+-- ======================
+INSERT INTO countries (country_code, country_name) VALUES
+('IN', 'India'),
+('US', 'United States'),
+('UK', 'United Kingdom');
+
+-- ======================
+-- Regions
+-- ======================
+INSERT INTO regions (region_name, country_code) VALUES
+('West India', 'IN'),
+('East Coast', 'US'),
+('London Metro', 'UK');
+
+-- ======================
+-- Branches
+-- ======================
+INSERT INTO branches (branch_name, region_id, manager_id, address) VALUES
+('Mumbai Central', 1, NULL, '123 MG Road, Mumbai'),
+('New York Downtown', 2, NULL, '45 Wall Street, NY'),
+('London City', 3, NULL, '10 Downing St, London');
+
+-- ======================
+-- Customer Segments
+-- ======================
+INSERT INTO customer_segments (segment_name, description) VALUES
+('Retail', 'Individual banking customers'),
+('Corporate', 'Business and corporate clients'),
+('Premium', 'High net-worth individuals');
+
+-- ======================
+-- Customers
+-- ======================
+INSERT INTO customers (first_name, last_name, date_of_birth, email, phone, segment_id) VALUES
+('Rahul', 'Sharma', '1985-06-15', 'rahul@example.com', '+91-9876543210', 1),
+('Anita', 'Verma', '1990-09-22', 'anita@example.com', '+91-9123456780', 2),
+('James', 'Smith', '1975-12-10', 'james@example.com', '+1-202-555-0198', 3);
+
+-- ======================
+-- Account Types
+-- ======================
+INSERT INTO account_types (type_name, description) VALUES
+('Savings', 'Standard savings account'),
+('Current', 'Business account for corporates'),
+('Fixed Deposit', 'Term-based fixed deposit account');
+
+-- ======================
+-- Currencies
+-- ======================
+INSERT INTO currencies (currency_code, currency_name, symbol) VALUES
+('INR', 'Indian Rupee', '₹'),
+('USD', 'US Dollar', '$'),
+('GBP', 'Pound Sterling', '£');
+
+-- ======================
+-- Accounts
+-- ======================
+INSERT INTO accounts (customer_id, account_type_id, balance, currency_code) VALUES
+(1, 1, 75000.50, 'INR'),
+(2, 2, 350000.00, 'INR'),
+(3, 1, 12000.00, 'USD');
+
+-- ======================
+-- Fees
+-- ======================
+INSERT INTO fees (fee_name, amount) VALUES
+('Processing Fee', 500.00),
+('Annual Fee', 1200.00),
+('Late Payment Fee', 250.00);
+
+-- ======================
+-- Products
+-- ======================
+INSERT INTO products (product_name, product_type, interest_rate, fee_id) VALUES
+('Savings Account', 'Deposit', 3.50, 2),
+('Home Loan', 'Loan', 8.20, 1),
+('Credit Card', 'Card', 14.50, 3);
+
+-- ======================
+-- Employees
+-- ======================
+INSERT INTO employees (first_name, last_name, role, branch_id, hire_date) VALUES
+('Suresh', 'Patil', 'Branch Manager', 1, '2010-05-10'),
+('Emily', 'Brown', 'Teller', 2, '2015-08-01'),
+('George', 'Taylor', 'Loan Officer', 3, '2018-03-20');
+
+-- ======================
+-- Merchants
+-- ======================
+INSERT INTO merchants (merchant_name, category, country_code) VALUES
+('Amazon', 'E-commerce', 'US'),
+('Flipkart', 'E-commerce', 'IN'),
+('Tesco', 'Retail', 'UK');
+
+-- ======================
+-- Payment Methods
+-- ======================
+INSERT INTO payment_methods (method_name) VALUES
+('Card'),
+('UPI'),
+('NetBanking');
+
+-- ======================
+-- Loan Types
+-- ======================
+INSERT INTO loan_types (loan_type_name, max_tenure_months, base_interest_rate) VALUES
+('Home Loan', 240, 7.5),
+('Car Loan', 84, 9.0),
+('Personal Loan', 60, 12.5);
+
+-- ======================
+-- Cards
+-- ======================
+INSERT INTO cards (account_id, card_number, card_type, expiry_date) VALUES
+(1, '4111111111111111', 'Debit', '2028-12-31'),
+(2, '5500000000000004', 'Credit', '2027-06-30'),
+(3, '340000000000009', 'Credit', '2026-09-30');
+
+-- ======================
+-- Transaction Channels
+-- ======================
+INSERT INTO transaction_channels (channel_name) VALUES
+('ATM'),
+('Mobile App'),
+('POS Terminal');
+
+-- ======================
+-- Risk Categories
+-- ======================
+INSERT INTO risk_categories (risk_level, description) VALUES
+('Low', 'Minimal financial risk'),
+('Medium', 'Moderate financial risk'),
+('High', 'High default risk');
+
+
+-- ======================
+-- Transaction Statuses
+-- ======================
+INSERT INTO transaction_statuses (status_name) VALUES
+('Pending'),
+('Completed'),
+('Failed');
+
+-- ======================
+-- Devices
+-- ======================
+INSERT INTO devices (device_type, os) VALUES
+('Mobile', 'Android'),
+('Mobile', 'iOS'),
+('ATM', 'Linux');
+
+-- ======================
+-- Transactions (Fact Table)
+-- ======================
+INSERT INTO transactions (account_id, branch_id, product_id, merchant_id, method_id, channel_id, employee_id, device_id, status_id, amount, currency_code, transaction_type, description)
+VALUES
+(1, 1, 1, 2, 2, 2, 1, 1, 2, 2000.00, 'INR', 'Debit', 'UPI transfer to Flipkart'),
+(2, 2, 2, 1, 1, 1, 2, 2, 2, 500000.00, 'INR', 'Credit', 'Home Loan disbursement to Amazon purchase'),
+(3, 3, 3, 3, 1, 3, 3, 3, 3, 150.00, 'USD', 'Debit', 'POS swipe at Tesco');
