@@ -32,7 +32,7 @@ Below are the set of instructions to install MCP Toolbox for databases, ADK and 
 12. Start a terminal session and run start the toolbox server
       ./toolbox --tools-file "toolbox-alloydb.yaml"
 
-15. Navigate to the parent folder/directory and start a fresh terminal session to initiate the adk web server
+15. Navigate to the parent folder/directory and start a fresh terminal session to initiate the adk web server. Source env.sh file to ensure the DB engine and project related variables are initiated in the shell.
       cd ..
       adk web --port 7860
 
