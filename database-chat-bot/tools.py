@@ -146,8 +146,8 @@ sample rows):
 
    """
 
-    #schema = tool_context.state["database_settings"]["alloydb"]["schema"]
-    schema = tool_context.state["database_settings"]["schema"]
+    schema = tool_context.state["database_settings"]["alloydb"]["schema"]
+    #schema = tool_context.state["database_settings"]["schema"]
 
     prompt = prompt_template.format(
         MAX_NUM_ROWS=MAX_NUM_ROWS, SCHEMA=schema, QUESTION=question
@@ -267,7 +267,7 @@ def run_query(
     Runs the database SQL query.
 
     This function validates the provided SQL string, then runs it against
-    AlloyDB and returns the results.
+    MySQL database and returns the results.
 
     It performs the following steps:
 
