@@ -19,20 +19,21 @@ Below are the set of instructions to install MCP Toolbox for databases, ADK and 
 8. pip3 install -r requirements.txt
 
 9. Navigate to the main MCP toolbox directory.
-     cd database-chat-bot
+    cd database-chat-bot
 
-10. Install the latest version of MCP Toolbox for databases as a binary (https://github.com/googleapis/genai-toolbox?tab=readme-ov-file#installing-the-server)
+11. Install the latest version of MCP Toolbox for databases as a binary (https://github.com/googleapis/genai-toolbox?tab=readme-ov-file#installing-the-server)
 
-      export VERSION=0.16.0
-      curl -O https://storage.googleapis.com/genai-toolbox/v$VERSION/linux/amd64/toolbox
-      chmod +x toolbox
+    export VERSION=0.16.0
+    curl -O https://storage.googleapis.com/genai-toolbox/v$VERSION/linux/amd64/toolbox
+    chmod +x toolbox
 
-11. Copy the .env-example file and rename it to .env . Relace the values appropriately in .env file and toolbox-alloydb.yaml
+12. Copy the .env-example file and rename it to .env . Relace the values appropriately in .env file and toolbox-alloydb.yaml.
+    Source toolbox_env.sh file to ensure the DB engine and project related variables are initiated in the shell.
 
-12. Start a terminal session and run start the toolbox server
+13. Start a terminal session and run start the toolbox server
       ./toolbox --tools-file "toolbox-alloydb.yaml"
 
-15. Navigate to the parent folder/directory and start a fresh terminal session to initiate the adk web server. Source env.sh file to ensure the DB engine and project related variables are initiated in the shell.
+15. Navigate to the parent folder/directory and start a fresh terminal session to initiate the adk web server; source toolbox_env.sh file.
       cd ..
       adk web --port 7860
 
