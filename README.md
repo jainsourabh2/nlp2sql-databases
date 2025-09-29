@@ -1,4 +1,4 @@
-# nlp2sql-databases
+# nl2sql-setup-steps
 
 Below are the set of instructions to install MCP Toolbox for databases, ADK and core toolbox libraries on localhost (terminal).
 
