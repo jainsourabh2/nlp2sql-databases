@@ -1,13 +1,13 @@
 # NL2SQL Setup Steps
 ### Below are the set of instructions to install MCP Toolbox for databases, ADK and core toolbox libraries on localhost (terminal).
 
-1. git clone https://github.com/jainsourabh2/nlp2sql-databases.git \
-2. Create an AlloyDB for PostgreSQL or Cloud SQL MySQL database instance in your GCP tenancy. \
-3. Use the dataset to create the sample financial dataset schema, data. Use the AlloyDB or MySQL flavor as appropriate. (https://github.com/jainsourabh2/nlp2sql-databases/tree/main/datasets) \
-4. Set the Python Virtual environment \
-4.1 python3 -m venv .venv \
-4.2 source .venv/bin/activate \
-5. Install the ADK by following the below steps: \
+1. git clone https://github.com/jainsourabh2/nlp2sql-databases.git  
+2. Create an AlloyDB for PostgreSQL or Cloud SQL MySQL database instance in your GCP tenancy.  
+3. Use the dataset to create the sample financial dataset schema, data. Use the AlloyDB or MySQL flavor as appropriate. (https://github.com/jainsourabh2/nlp2sql-databases/tree/main/datasets)  
+4. Set the Python Virtual environment  
+4.1 python3 -m venv .venv  
+4.2 source .venv/bin/activate  
+5. Install the ADK by following the below steps:  
 5.1 pip3 install google-adk \
 6. Install the dependancies \
 6.1 pip3 install -r nlp2sql-databases/requirements.txt \
