@@ -72,7 +72,7 @@ def update_database_settings():
     schema = get_schema()
 
     database_settings = {
-        "project_id": get_env_var("DATABASE_PROJECT"),
+        "project_id": get_env_var("GOOGLE_CLOUD_PROJECT"),
         "database": get_env_var("DATABASE"),
         "schema_name": get_env_var("DATABASE_SCHEMA_NAME"),
         "schema": schema,
@@ -146,8 +146,7 @@ sample rows):
 
    """
 
-    schema = tool_context.state["database_settings"]["alloydb"]["schema"]
-    #schema = tool_context.state["database_settings"]["schema"]
+    schema = tool_context.state["database_settings"]["schema"]
 
     prompt = prompt_template.format(
         MAX_NUM_ROWS=MAX_NUM_ROWS, SCHEMA=schema, QUESTION=question

@@ -15,7 +15,7 @@
 """Database Agent: get data from various databases using NL2SQL."""
 
 import os
-
+from datetime import date
 from google.adk.agents import LlmAgent
 from google.adk.agents.callback_context import CallbackContext
 from google.genai import types
@@ -23,8 +23,8 @@ from google.genai import types
 from . import tools
 from .prompts import process_database
 
+date_today = date.today()
 db = os.getenv("DATABASE_TYPE", "MYSQL")
-print(db)
 def setup_before_agent_call(callback_context: CallbackContext) -> None:
     """Setup the agent."""
 
@@ -37,7 +37,13 @@ root_agent = LlmAgent(
     model=os.getenv("AGENT_MODEL", ""),
     name="database_agent",
     instruction=process_database(db),
-    output_key = "agent_output",
+    global_instruction=(
+    f"""
+    You are a Data Science and Data Analytics Multi Agent System.
+    Todays date: {date_today}
+    """
+    ),
+    output_key = "alloydb_agent_output",
     tools=[
         tools.alloydb_nl2sql,
         tools.mysql_nl2sql,
