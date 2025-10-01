@@ -20,8 +20,6 @@ An Agentic AI agent to converse naturally with the databases like MySQL / AlloyD
     ```bash
     git clone https://github.com/jainsourabh2/nlp2sql-databases.git 
     ```
-
-1. git clone https://github.com/jainsourabh2/nlp2sql-databases.git  
 2. Create an AlloyDB for PostgreSQL or Cloud SQL MySQL database instance in your GCP tenancy.  
 3. Use the dataset to create the sample financial dataset schema, data. Use the AlloyDB or MySQL flavor as appropriate. (https://github.com/jainsourabh2/nlp2sql-databases/tree/main/datasets) 4. Navigate to the main MCP toolbox directory.  
    ```bash
