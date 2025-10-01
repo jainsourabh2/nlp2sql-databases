@@ -41,7 +41,7 @@ An Agentic AI agent to converse naturally with the databases like MySQL / AlloyD
    ```bash
     ./toolbox --tools-file "toolbox-<<db>>.yaml"
    ```
-8. Copy the .env-example file and rename it to **.env  
+8. Copy the .env-example file and rename it to .env  
    Replace the values appropriately in .env file to reflect the concerned DATABASE and TOOLSET. SERVER_URL will be the toolbox server obtained in the above step. 
 9. Set the Python Virtual environment
    ```bash
